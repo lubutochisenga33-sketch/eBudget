@@ -1,6 +1,6 @@
 require('dotenv').config();
 const express   = require('express');
-const mongoose  = require('mongoose');
+const cloudinary = require('cloudinary').v2;
 const cors      = require('cors');
 const path      = require('path');
 
@@ -20,16 +20,18 @@ app.use(express.json());
 // Place eBudget.html and admin.html in the /public folder
 app.use(express.static(path.join(__dirname, 'public')));
 
-// ── Database ────────────────────────────────────────────────
-mongoose
-  .connect(process.env.MONGO_URI)
-  .then(() => console.log('✅ MongoDB connected'))
-  .catch(err => { console.error('❌ MongoDB connection error:', err); process.exit(1); });
+// ── Cloudinary ──────────────────────────────────────────────
+cloudinary.config({
+  cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+  api_key: process.env.CLOUDINARY_API_KEY,
+  api_secret: process.env.CLOUDINARY_API_SECRET
+});
+console.log('🔁 Cloudinary configured');
 
 // ── Routes ──────────────────────────────────────────────────
-app.use('/api/auth',    require('./routes/auth'));
-app.use('/api/admin',   require('./routes/admin'));
-app.use('/api/entries', require('./routes/entries'));
+app.use('/api/auth',    require('./routes/auth.json'));
+app.use('/api/admin',   require('./routes/admin.json'));
+app.use('/api/entries', require('./routes/entries.json'));
 
 // ── Health check ────────────────────────────────────────────
 app.get('/api/health', (req, res) => {
